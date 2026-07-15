@@ -111,14 +111,19 @@
 
     li {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 8px;
+      flex-direction: column;
+      padding: 6px 8px;
       border-radius: 8px;
       transition: background 0.1s;
     }
 
     li:hover { background: #f9f9f9; }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
     li input[type="checkbox"] {
       appearance: none;
@@ -197,6 +202,88 @@
 
     button.delete-btn:hover { color: #ef4444; }
 
+    button.notes-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #bbb;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    button.notes-btn:hover { color: #4f46e5; }
+    button.notes-btn.has-notes { color: #4f46e5; }
+    li.done button.notes-btn { color: #ddd; pointer-events: none; }
+    li.done button.notes-btn.has-notes { color: #ccc; pointer-events: auto; }
+
+    .notes-chevron {
+      display: inline-block;
+      transition: transform 0.2s;
+      font-style: normal;
+    }
+
+    .notes-btn.open .notes-chevron { transform: rotate(90deg); }
+
+    .notes-preview {
+      font-size: 0.8rem;
+      color: #bbb;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      cursor: pointer;
+    }
+
+    li.done .notes-preview { color: #ddd; }
+
+    .notes-panel {
+      margin-top: 6px;
+      margin-left: 30px;
+      display: none;
+    }
+
+    .notes-panel.open { display: block; }
+
+    .notes-panel textarea {
+      width: 100%;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: #1a1a1a;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      min-height: 72px;
+      transition: border-color 0.15s;
+    }
+
+    .notes-panel textarea:focus { border-color: #4f46e5; }
+
+    .notes-panel textarea:disabled {
+      background: #fafafa;
+      color: #999;
+      cursor: default;
+      border-color: #ececec;
+    }
+
+    .notes-saved {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 4px;
+      height: 14px;
+    }
+
     .empty {
       text-align: center;
       color: #bbb;
@@ -235,6 +322,8 @@
     }
 
     let items = loadItems();
+    const openNotes = new Set();
+    const saveTimers = {};
 
     function todayStr() {
       const d = new Date();
@@ -267,6 +356,10 @@
         const li = document.createElement('li');
         if (item.done) li.classList.add('done');
 
+        // — top row —
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = item.done;
@@ -288,15 +381,78 @@
           body.appendChild(dueEl);
         }
 
+        const isOpen = openNotes.has(i);
+
+        const notesBtn = document.createElement('button');
+        notesBtn.className = 'notes-btn' + (item.notes ? ' has-notes' : '') + (isOpen ? ' open' : '');
+        notesBtn.title = isOpen ? 'Collapse notes' : (item.notes ? 'Expand notes' : 'Add notes');
+        const chevron = document.createElement('i');
+        chevron.className = 'notes-chevron';
+        chevron.textContent = '▸';
+        notesBtn.append(chevron, document.createTextNode(item.notes ? ' Notes' : ' notes'));
+        notesBtn.addEventListener('click', () => toggleNotes(i));
+
+        if (item.notes && !isOpen) {
+          const preview = document.createElement('div');
+          preview.className = 'notes-preview';
+          preview.textContent = item.notes;
+          preview.addEventListener('click', () => toggleNotes(i));
+          body.appendChild(preview);
+        }
+
         const del = document.createElement('button');
         del.className = 'delete-btn';
         del.textContent = '✕';
         del.title = 'Delete';
         del.addEventListener('click', () => deleteItem(i));
 
-        li.append(cb, body, del);
+        row.append(cb, body, notesBtn, del);
+
+        // — notes panel —
+        const panel = document.createElement('div');
+        panel.className = 'notes-panel' + (openNotes.has(i) ? ' open' : '');
+
+        const ta = document.createElement('textarea');
+        ta.placeholder = 'Add notes…';
+        ta.value = item.notes || '';
+        ta.disabled = item.done;
+        ta.addEventListener('input', () => scheduleNoteSave(i, ta, savedMsg));
+
+        const savedMsg = document.createElement('div');
+        savedMsg.className = 'notes-saved';
+
+        panel.append(ta, savedMsg);
+        li.append(row, panel);
         list.appendChild(li);
       });
+    }
+
+    function toggleNotes(i) {
+      if (openNotes.has(i)) openNotes.delete(i);
+      else openNotes.add(i);
+      render();
+      if (openNotes.has(i)) {
+        const panels = document.querySelectorAll('.notes-panel.open');
+        const panel = panels[panels.length - 1];
+        if (panel) panel.querySelector('textarea').focus();
+      }
+    }
+
+    function scheduleNoteSave(i, ta, savedMsg) {
+      clearTimeout(saveTimers[i]);
+      savedMsg.textContent = '';
+      saveTimers[i] = setTimeout(() => {
+        items[i].notes = ta.value;
+        saveItems(items);
+        savedMsg.textContent = 'Saved';
+        setTimeout(() => { savedMsg.textContent = ''; }, 1500);
+        // refresh button label without full re-render
+        const btns = document.querySelectorAll('.notes-btn');
+        if (btns[i]) {
+          btns[i].classList.toggle('has-notes', !!ta.value);
+          btns[i].lastChild.textContent = ta.value ? ' Notes' : ' notes';
+        }
+      }, 600);
     }
 
     function addItem() {
@@ -304,7 +460,7 @@
       const dateInput = document.getElementById('new-due');
       const text = input.value.trim();
       if (!text) return;
-      items.push({ text, done: false, due: dateInput.value || null });
+      items.push({ text, done: false, due: dateInput.value || null, notes: '' });
       saveItems(items);
       render();
       input.value = '';
