@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklist</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 48px 16px;
+      color: #1a1a1a;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 480px;
+      padding: 32px;
+      height: fit-content;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .input-main {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .input-sub label {
+      font-size: 0.85rem;
+      color: #888;
+      white-space: nowrap;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      color: #1a1a1a;
+      font-family: inherit;
+    }
+
+    input[type="text"] { flex: 1; }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+      border-color: #4f46e5;
+    }
+
+    input[type="text"]::placeholder {
+      color: #aaa;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.5;
+      cursor: pointer;
+    }
+
+    button.add-btn {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    button.add-btn:hover { background: #4338ca; }
+    button.add-btn:active { background: #3730a3; }
+
+    ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 8px;
+      border-radius: 8px;
+      transition: background 0.1s;
+    }
+
+    li:hover { background: #f9f9f9; }
+
+    li input[type="checkbox"] {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid #d0d0d0;
+      border-radius: 5px;
+      cursor: pointer;
+      flex-shrink: 0;
+      position: relative;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    li input[type="checkbox"]:checked {
+      background: #4f46e5;
+      border-color: #4f46e5;
+    }
+
+    li input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 5px;
+      height: 9px;
+      border: 2px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .item-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .item-text {
+      font-size: 0.95rem;
+      line-height: 1.4;
+      transition: color 0.15s;
+      word-break: break-word;
+    }
+
+    li.done .item-text {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .item-due {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: #888;
+    }
+
+    .item-due.overdue { color: #ef4444; }
+    .item-due.today   { color: #f59e0b; }
+    .item-due.soon    { color: #4f46e5; }
+
+    li.done .item-due { color: #bbb !important; }
+
+    button.delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+    }
+
+    button.delete-btn:hover { color: #ef4444; }
+
+    .empty {
+      text-align: center;
+      color: #bbb;
+      font-size: 0.9rem;
+      padding: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Checklist</h1>
+    <div class="input-row">
+      <div class="input-main">
+        <input type="text" id="new-item" placeholder="Add an item…" maxlength="200">
+        <button class="add-btn" onclick="addItem()">Add</button>
+      </div>
+      <div class="input-sub">
+        <label for="new-due">Due date</label>
+        <input type="date" id="new-due">
+      </div>
+    </div>
+    <ul id="list"></ul>
+    <p class="empty" id="empty-msg">No items yet. Add one above.</p>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'checklist-items';
+
+    function loadItems() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveItems(items) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    let items = loadItems();
+
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function formatDue(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const due = new Date(y, m - 1, d);
+      const today = new Date(); today.setHours(0,0,0,0);
+      const diff = Math.round((due - today) / 86400000);
+      const label = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      let cls = '';
+      if      (diff < 0)  cls = 'overdue';
+      else if (diff === 0) cls = 'today';
+      else if (diff <= 3) cls = 'soon';
+      const prefix = diff < 0  ? `Overdue · ` :
+                     diff === 0 ? `Due today · ` :
+                     diff === 1 ? `Due tomorrow · ` : `Due `;
+      return { text: prefix + label, cls };
+    }
+
+    function render() {
+      const list = document.getElementById('list');
+      const emptyMsg = document.getElementById('empty-msg');
+      list.innerHTML = '';
+      emptyMsg.style.display = items.length === 0 ? 'block' : 'none';
+
+      items.forEach((item, i) => {
+        const li = document.createElement('li');
+        if (item.done) li.classList.add('done');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = item.done;
+        cb.addEventListener('change', () => toggle(i));
+
+        const body = document.createElement('div');
+        body.className = 'item-body';
+
+        const span = document.createElement('span');
+        span.className = 'item-text';
+        span.textContent = item.text;
+        body.appendChild(span);
+
+        if (item.due) {
+          const { text, cls } = formatDue(item.due);
+          const dueEl = document.createElement('span');
+          dueEl.className = 'item-due' + (cls ? ' ' + cls : '');
+          dueEl.textContent = text;
+          body.appendChild(dueEl);
+        }
+
+        const del = document.createElement('button');
+        del.className = 'delete-btn';
+        del.textContent = '✕';
+        del.title = 'Delete';
+        del.addEventListener('click', () => deleteItem(i));
+
+        li.append(cb, body, del);
+        list.appendChild(li);
+      });
+    }
+
+    function addItem() {
+      const input = document.getElementById('new-item');
+      const dateInput = document.getElementById('new-due');
+      const text = input.value.trim();
+      if (!text) return;
+      items.push({ text, done: false, due: dateInput.value || null });
+      saveItems(items);
+      render();
+      input.value = '';
+      dateInput.value = '';
+      input.focus();
+    }
+
+    function toggle(i) {
+      items[i].done = !items[i].done;
+      saveItems(items);
+      render();
+    }
+
+    function deleteItem(i) {
+      items.splice(i, 1);
+      saveItems(items);
+      render();
+    }
+
+    document.getElementById('new-item').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addItem();
+    });
+
+    render();
+  </script>
+</body>
+</html>
