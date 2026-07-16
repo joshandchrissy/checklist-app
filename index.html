@@ -73,13 +73,9 @@
     input[type="text"] { flex: 1; }
 
     input[type="text"]:focus,
-    input[type="date"]:focus {
-      border-color: #4f46e5;
-    }
+    input[type="date"]:focus { border-color: #4f46e5; }
 
-    input[type="text"]::placeholder {
-      color: #aaa;
-    }
+    input[type="text"]::placeholder { color: #aaa; }
 
     input[type="date"]::-webkit-calendar-picker-indicator {
       opacity: 0.5;
@@ -99,9 +95,10 @@
       white-space: nowrap;
     }
 
-    button.add-btn:hover { background: #4338ca; }
+    button.add-btn:hover  { background: #4338ca; }
     button.add-btn:active { background: #3730a3; }
 
+    /* ── List items ── */
     ul {
       list-style: none;
       display: flex;
@@ -166,7 +163,6 @@
     .item-text {
       font-size: 0.95rem;
       line-height: 1.4;
-      transition: color 0.15s;
       word-break: break-word;
     }
 
@@ -187,6 +183,18 @@
 
     li.done .item-due { color: #bbb !important; }
 
+    .item-summary {
+      font-size: 0.78rem;
+      color: #bbb;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+
+    li.done .item-summary { color: #ddd; }
+
+    /* ── Buttons ── */
     button.delete-btn {
       background: none;
       border: none;
@@ -202,7 +210,7 @@
 
     button.delete-btn:hover { color: #ef4444; }
 
-    button.notes-btn {
+    button.details-btn {
       background: none;
       border: none;
       cursor: pointer;
@@ -213,47 +221,45 @@
       border-radius: 4px;
       transition: color 0.15s;
       flex-shrink: 0;
-      line-height: 1;
       display: flex;
       align-items: center;
       gap: 3px;
+      white-space: nowrap;
     }
 
-    button.notes-btn:hover { color: #4f46e5; }
-    button.notes-btn.has-notes { color: #4f46e5; }
-    li.done button.notes-btn { color: #ddd; pointer-events: none; }
-    li.done button.notes-btn.has-notes { color: #ccc; pointer-events: auto; }
+    button.details-btn:hover    { color: #4f46e5; }
+    button.details-btn.has-data { color: #4f46e5; }
+    li.done button.details-btn  { color: #ddd; }
 
-    .notes-chevron {
+    .details-chevron {
       display: inline-block;
       transition: transform 0.2s;
-      font-style: normal;
     }
 
-    .notes-btn.open .notes-chevron { transform: rotate(90deg); }
+    button.details-btn.open .details-chevron { transform: rotate(90deg); }
 
-    .notes-preview {
-      font-size: 0.8rem;
-      color: #bbb;
-      margin-top: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      cursor: pointer;
-    }
-
-    li.done .notes-preview { color: #ddd; }
-
-    .notes-panel {
-      margin-top: 6px;
+    /* ── Details panel ── */
+    .details-panel {
+      margin-top: 8px;
       margin-left: 30px;
       display: none;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    .notes-panel.open { display: block; }
+    .details-panel.open { display: flex; }
 
-    .notes-panel textarea {
+    .section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #bbb;
+      margin-bottom: 6px;
+    }
+
+    /* Notes */
+    .details-panel textarea {
       width: 100%;
       border: 1.5px solid #e0e0e0;
       border-radius: 8px;
@@ -264,25 +270,168 @@
       line-height: 1.5;
       resize: vertical;
       outline: none;
-      min-height: 72px;
+      min-height: 68px;
       transition: border-color 0.15s;
     }
 
-    .notes-panel textarea:focus { border-color: #4f46e5; }
+    .details-panel textarea:focus { border-color: #4f46e5; }
 
-    .notes-panel textarea:disabled {
+    .details-panel textarea:disabled {
       background: #fafafa;
       color: #999;
       cursor: default;
       border-color: #ececec;
     }
 
-    .notes-saved {
+    .saved-msg {
       font-size: 0.75rem;
       color: #aaa;
       margin-top: 4px;
       height: 14px;
     }
+
+    /* Steps */
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 2px 0;
+    }
+
+    .step-item input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      flex: 1;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .step-item.done .step-text {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    button.step-del {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ddd;
+      font-size: 0.85rem;
+      padding: 1px 3px;
+      border-radius: 3px;
+      transition: color 0.15s;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    button.step-del:hover { color: #ef4444; }
+
+    li.done .step-item input[type="checkbox"] { pointer-events: none; }
+    li.done button.step-del { display: none; }
+
+    .step-add {
+      display: flex;
+      gap: 6px;
+    }
+
+    .step-add input {
+      flex: 1;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+      color: #1a1a1a;
+    }
+
+    .step-add input:focus { border-color: #4f46e5; }
+    .step-add input::placeholder { color: #bbb; }
+
+    button.step-add-btn {
+      background: #f0efff;
+      color: #4f46e5;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    button.step-add-btn:hover { background: #e0deff; }
+
+    li.done .step-add { display: none; }
+
+    /* Photo */
+    .photo-area { display: flex; flex-direction: column; gap: 8px; }
+
+    .photo-preview {
+      position: relative;
+      display: inline-block;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      border-radius: 8px;
+      display: block;
+      max-height: 260px;
+      object-fit: cover;
+    }
+
+    button.photo-remove {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 3px 7px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    button.photo-remove:hover { background: rgba(200,0,0,0.75); }
+
+    li.done button.photo-remove { display: none; }
+
+    label.photo-upload-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f5f5f5;
+      border: 1.5px dashed #ddd;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: #888;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    label.photo-upload-btn:hover { border-color: #4f46e5; color: #4f46e5; }
+
+    li.done label.photo-upload-btn { display: none; }
+
+    input[type="file"] { display: none; }
 
     .empty {
       text-align: center;
@@ -322,12 +471,11 @@
     }
 
     let items = loadItems();
-    const openNotes = new Set();
+    const openDetails = new Set();
     const saveTimers = {};
 
-    function todayStr() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    function hasData(item) {
+      return !!(item.notes || (item.steps && item.steps.length) || item.photo);
     }
 
     function formatDue(dateStr) {
@@ -337,13 +485,24 @@
       const diff = Math.round((due - today) / 86400000);
       const label = due.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
       let cls = '';
-      if      (diff < 0)  cls = 'overdue';
+      if      (diff < 0)   cls = 'overdue';
       else if (diff === 0) cls = 'today';
-      else if (diff <= 3) cls = 'soon';
-      const prefix = diff < 0  ? `Overdue · ` :
-                     diff === 0 ? `Due today · ` :
-                     diff === 1 ? `Due tomorrow · ` : `Due `;
+      else if (diff <= 3)  cls = 'soon';
+      const prefix = diff < 0   ? 'Overdue · ' :
+                     diff === 0 ? 'Due today · ' :
+                     diff === 1 ? 'Due tomorrow · ' : 'Due ';
       return { text: prefix + label, cls };
+    }
+
+    function buildSummary(item) {
+      const parts = [];
+      if (item.notes) parts.push(item.notes.split('\n')[0]);
+      if (item.steps && item.steps.length) {
+        const done = item.steps.filter(s => s.done).length;
+        parts.push(`${done}/${item.steps.length} steps`);
+      }
+      if (item.photo) parts.push('📷 photo');
+      return parts.join(' · ');
     }
 
     function render() {
@@ -356,14 +515,14 @@
         const li = document.createElement('li');
         if (item.done) li.classList.add('done');
 
-        // — top row —
+        /* ── top row ── */
         const row = document.createElement('div');
         row.className = 'item-row';
 
         const cb = document.createElement('input');
         cb.type = 'checkbox';
         cb.checked = item.done;
-        cb.addEventListener('change', () => toggle(i));
+        cb.addEventListener('change', () => toggleDone(i));
 
         const body = document.createElement('div');
         body.className = 'item-body';
@@ -381,24 +540,24 @@
           body.appendChild(dueEl);
         }
 
-        const isOpen = openNotes.has(i);
+        const isOpen = openDetails.has(i);
 
-        const notesBtn = document.createElement('button');
-        notesBtn.className = 'notes-btn' + (item.notes ? ' has-notes' : '') + (isOpen ? ' open' : '');
-        notesBtn.title = isOpen ? 'Collapse notes' : (item.notes ? 'Expand notes' : 'Add notes');
-        const chevron = document.createElement('i');
-        chevron.className = 'notes-chevron';
-        chevron.textContent = '▸';
-        notesBtn.append(chevron, document.createTextNode(item.notes ? ' Notes' : ' notes'));
-        notesBtn.addEventListener('click', () => toggleNotes(i));
-
-        if (item.notes && !isOpen) {
-          const preview = document.createElement('div');
-          preview.className = 'notes-preview';
-          preview.textContent = item.notes;
-          preview.addEventListener('click', () => toggleNotes(i));
-          body.appendChild(preview);
+        if (!isOpen && hasData(item)) {
+          const summary = document.createElement('div');
+          summary.className = 'item-summary';
+          summary.textContent = buildSummary(item);
+          summary.addEventListener('click', () => toggleDetails(i));
+          body.appendChild(summary);
         }
+
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'details-btn' + (hasData(item) ? ' has-data' : '') + (isOpen ? ' open' : '');
+        detailsBtn.title = isOpen ? 'Collapse details' : 'Expand details';
+        const chev = document.createElement('i');
+        chev.className = 'details-chevron';
+        chev.textContent = '▸';
+        detailsBtn.append(chev, document.createTextNode(' Details'));
+        detailsBtn.addEventListener('click', () => toggleDetails(i));
 
         const del = document.createElement('button');
         del.className = 'delete-btn';
@@ -406,35 +565,145 @@
         del.title = 'Delete';
         del.addEventListener('click', () => deleteItem(i));
 
-        row.append(cb, body, notesBtn, del);
+        row.append(cb, body, detailsBtn, del);
 
-        // — notes panel —
+        /* ── details panel ── */
         const panel = document.createElement('div');
-        panel.className = 'notes-panel' + (openNotes.has(i) ? ' open' : '');
+        panel.className = 'details-panel' + (isOpen ? ' open' : '');
 
+        /* Notes section */
+        const notesSection = document.createElement('div');
+        const notesLabel = document.createElement('div');
+        notesLabel.className = 'section-label';
+        notesLabel.textContent = 'Notes';
         const ta = document.createElement('textarea');
         ta.placeholder = 'Add notes…';
         ta.value = item.notes || '';
         ta.disabled = item.done;
-        ta.addEventListener('input', () => scheduleNoteSave(i, ta, savedMsg));
-
         const savedMsg = document.createElement('div');
-        savedMsg.className = 'notes-saved';
+        savedMsg.className = 'saved-msg';
+        ta.addEventListener('input', () => scheduleNoteSave(i, ta, savedMsg));
+        notesSection.append(notesLabel, ta, savedMsg);
 
-        panel.append(ta, savedMsg);
+        /* Steps section */
+        const stepsSection = document.createElement('div');
+        const stepsLabel = document.createElement('div');
+        stepsLabel.className = 'section-label';
+        stepsLabel.textContent = 'Steps';
+        const stepsList = document.createElement('div');
+        stepsList.className = 'steps-list';
+
+        (item.steps || []).forEach((step, si) => {
+          const stepRow = document.createElement('div');
+          stepRow.className = 'step-item' + (step.done ? ' done' : '');
+
+          const scb = document.createElement('input');
+          scb.type = 'checkbox';
+          scb.checked = step.done;
+          scb.addEventListener('change', () => toggleStep(i, si));
+
+          const stxt = document.createElement('span');
+          stxt.className = 'step-text';
+          stxt.textContent = step.text;
+
+          const sdel = document.createElement('button');
+          sdel.className = 'step-del';
+          sdel.textContent = '✕';
+          sdel.title = 'Remove step';
+          sdel.addEventListener('click', () => deleteStep(i, si));
+
+          stepRow.append(scb, stxt, sdel);
+          stepsList.appendChild(stepRow);
+        });
+
+        const stepAddRow = document.createElement('div');
+        stepAddRow.className = 'step-add';
+        const stepInput = document.createElement('input');
+        stepInput.type = 'text';
+        stepInput.placeholder = 'Add a step…';
+        stepInput.maxLength = 200;
+        const stepAddBtn = document.createElement('button');
+        stepAddBtn.className = 'step-add-btn';
+        stepAddBtn.textContent = '+ Add';
+        const doAddStep = () => {
+          const text = stepInput.value.trim();
+          if (!text) return;
+          if (!items[i].steps) items[i].steps = [];
+          items[i].steps.push({ text, done: false });
+          saveItems(items);
+          render();
+        };
+        stepAddBtn.addEventListener('click', doAddStep);
+        stepInput.addEventListener('keydown', e => { if (e.key === 'Enter') doAddStep(); });
+        stepAddRow.append(stepInput, stepAddBtn);
+
+        stepsSection.append(stepsLabel, stepsList, stepAddRow);
+
+        /* Photo section */
+        const photoSection = document.createElement('div');
+        const photoLabel = document.createElement('div');
+        photoLabel.className = 'section-label';
+        photoLabel.textContent = 'Photo';
+        const photoArea = document.createElement('div');
+        photoArea.className = 'photo-area';
+
+        if (item.photo) {
+          const preview = document.createElement('div');
+          preview.className = 'photo-preview';
+          const img = document.createElement('img');
+          img.src = item.photo;
+          img.alt = 'Attached photo';
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'photo-remove';
+          removeBtn.textContent = 'Remove';
+          removeBtn.addEventListener('click', () => removePhoto(i));
+          preview.append(img, removeBtn);
+          photoArea.appendChild(preview);
+        }
+
+        if (!item.done) {
+          const fileId = `photo-input-${i}`;
+          const uploadLabel = document.createElement('label');
+          uploadLabel.className = 'photo-upload-btn';
+          uploadLabel.htmlFor = fileId;
+          uploadLabel.textContent = item.photo ? '📷 Replace photo' : '📷 Add photo';
+          const fileInput = document.createElement('input');
+          fileInput.type = 'file';
+          fileInput.id = fileId;
+          fileInput.accept = 'image/*';
+          fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (!file) return;
+            if (file.size > 4 * 1024 * 1024) {
+              alert('Image must be under 4 MB.');
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+              items[i].photo = e.target.result;
+              saveItems(items);
+              render();
+            };
+            reader.readAsDataURL(file);
+          });
+          photoArea.append(uploadLabel, fileInput);
+        }
+
+        photoSection.append(photoLabel, photoArea);
+
+        panel.append(notesSection, stepsSection, photoSection);
         li.append(row, panel);
         list.appendChild(li);
       });
     }
 
-    function toggleNotes(i) {
-      if (openNotes.has(i)) openNotes.delete(i);
-      else openNotes.add(i);
+    function toggleDetails(i) {
+      if (openDetails.has(i)) openDetails.delete(i);
+      else openDetails.add(i);
       render();
-      if (openNotes.has(i)) {
-        const panels = document.querySelectorAll('.notes-panel.open');
-        const panel = panels[panels.length - 1];
-        if (panel) panel.querySelector('textarea').focus();
+      if (openDetails.has(i)) {
+        const panels = document.querySelectorAll('.details-panel.open');
+        if (panels.length) panels[panels.length - 1].querySelector('textarea').focus();
       }
     }
 
@@ -446,13 +715,25 @@
         saveItems(items);
         savedMsg.textContent = 'Saved';
         setTimeout(() => { savedMsg.textContent = ''; }, 1500);
-        // refresh button label without full re-render
-        const btns = document.querySelectorAll('.notes-btn');
-        if (btns[i]) {
-          btns[i].classList.toggle('has-notes', !!ta.value);
-          btns[i].lastChild.textContent = ta.value ? ' Notes' : ' notes';
-        }
       }, 600);
+    }
+
+    function toggleStep(i, si) {
+      items[i].steps[si].done = !items[i].steps[si].done;
+      saveItems(items);
+      render();
+    }
+
+    function deleteStep(i, si) {
+      items[i].steps.splice(si, 1);
+      saveItems(items);
+      render();
+    }
+
+    function removePhoto(i) {
+      items[i].photo = null;
+      saveItems(items);
+      render();
     }
 
     function addItem() {
@@ -460,7 +741,7 @@
       const dateInput = document.getElementById('new-due');
       const text = input.value.trim();
       if (!text) return;
-      items.push({ text, done: false, due: dateInput.value || null, notes: '' });
+      items.push({ text, done: false, due: dateInput.value || null, notes: '', steps: [], photo: null });
       saveItems(items);
       render();
       input.value = '';
@@ -468,7 +749,7 @@
       input.focus();
     }
 
-    function toggle(i) {
+    function toggleDone(i) {
       items[i].done = !items[i].done;
       saveItems(items);
       render();
@@ -476,6 +757,7 @@
 
     function deleteItem(i) {
       items.splice(i, 1);
+      openDetails.delete(i);
       saveItems(items);
       render();
     }
